@@ -1,7 +1,4 @@
-﻿using People.Models;
-using System.Collections.Generic;
-
-namespace People;
+﻿namespace People;
 
 public partial class MainPage : ContentPage
 {
@@ -11,19 +8,19 @@ public partial class MainPage : ContentPage
 		InitializeComponent();
 	}
 
-    public void OnNewButtonClicked(object sender, EventArgs args)
+    private void OnNewButtonClicked(object sender, EventArgs args)
     {
-        statusMessage.Text = "";
+        statusMessage.Text = string.Empty;
 
-        App.PersonRepo.AddNewPerson(newPerson.Text);
-        statusMessage.Text = App.PersonRepo.StatusMessage;
+        App.PersonRepository.AddNewPerson(newPerson.Text);
+        statusMessage.Text = App.PersonRepository.StatusMessage;
     }
 
-    public void OnGetButtonClicked(object sender, EventArgs args)
+    private void OnGetButtonClicked(object sender, EventArgs args)
     {
-        statusMessage.Text = "";
+        statusMessage.Text = string.Empty;
 
-        List<Person> people = App.PersonRepo.GetAllPeople();
+        var people = App.PersonRepository.GetAllPeople();
         peopleList.ItemsSource = people;
     }
 
