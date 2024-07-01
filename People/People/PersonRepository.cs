@@ -46,16 +46,17 @@ public class PersonRepository(string dbPath)
 
     public List<Person> GetAllPeople()
     {
-        // TODO: Init then retrieve a list of Person objects from the database into a list
         try
         {
+            Init();
 
+            return [.. _conn.Table<Person>()];
         }
         catch (Exception ex)
         {
-            StatusMessage = string.Format("Failed to retrieve data. {0}", ex.Message);
+            StatusMessage = $"Failed to retrieve data. {ex.Message}";
         }
 
-        return new List<Person>();
+        return [];
     }
 }
