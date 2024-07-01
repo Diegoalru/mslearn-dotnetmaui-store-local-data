@@ -5,7 +5,7 @@ namespace People;
 
 public class PersonRepository(string dbPath)
 {
-    public string StatusMessage { get; set; }
+    public string StatusMessage { get; private set; }
 
     private SQLiteConnection _conn;
 
@@ -38,10 +38,21 @@ public class PersonRepository(string dbPath)
 
             StatusMessage = $"{result} record(s) added (Name: {name})";
         }
-        catch (Exception ex)
+        catch (SQLiteException ex)
         {
-            StatusMessage = $"Failed to add {name}. Error: {ex.Message}";
+            if (ex.Message.Contains("UNIQUE"))
+            {
+                StatusMessage = $"Unable to register {name}. Already exists.";
+                return;
+            }
+
+            StatusMessage = $"Failed to add {name}.";
         }
+        catch (Exception)
+        {
+            StatusMessage = $"An unexpected error occurred while adding {name}.";
+        }
+
     }
 
     public List<Person> GetAllPeople()
@@ -52,9 +63,13 @@ public class PersonRepository(string dbPath)
 
             return [.. _conn.Table<Person>()];
         }
-        catch (Exception ex)
+        catch (SQLiteException)
         {
-            StatusMessage = $"Failed to retrieve data. {ex.Message}";
+            StatusMessage = "Failed to retrieve data.";
+        }
+        catch (Exception)
+        {
+            StatusMessage = "An unexpected error occured while retrieve data.";
         }
 
         return [];
