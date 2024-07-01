@@ -3,32 +3,25 @@ using People.Models;
 
 namespace People;
 
-public class PersonRepository
+public class PersonRepository(string dbPath)
 {
-    string _dbPath;
-
     public string StatusMessage { get; set; }
 
-    private SQLiteConnection conn;
+    private SQLiteConnection _conn;
 
     private void Init()
     {
-        if (conn != null)
+        if (_conn != null)
             return;
 
 
-        conn = new SQLiteConnection(_dbPath);
+        _conn = new SQLiteConnection(dbPath);
 
-        if (string.IsNullOrEmpty(conn.DatabasePath))
+        if (string.IsNullOrEmpty(_conn.DatabasePath))
             throw new Exception("[Repository] Database path not found!");
 
 
-        conn.CreateTable<Person>();
-    }
-
-    public PersonRepository(string dbPath)
-    {
-        _dbPath = dbPath;
+        _conn.CreateTable<Person>();
     }
 
     public void AddNewPerson(string name)
