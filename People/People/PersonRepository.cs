@@ -1,4 +1,7 @@
-﻿namespace People;
+﻿using SQLite;
+using People.Models;
+
+namespace People;
 
 public class PersonRepository
 {
@@ -6,20 +9,30 @@ public class PersonRepository
 
     public string StatusMessage { get; set; }
 
-    // TODO: Add variable for the SQLite connection
+    private SQLiteConnection conn;
 
     private void Init()
     {
-        // TODO: Add code to initialize the repository         
+        if (conn != null)
+            return;
+
+
+        conn = new SQLiteConnection(_dbPath);
+
+        if (string.IsNullOrEmpty(conn.DatabasePath))
+            throw new Exception("[Repository] Database path not found!");
+
+
+        conn.CreateTable<Person>();
     }
 
     public PersonRepository(string dbPath)
     {
-        _dbPath = dbPath;                        
+        _dbPath = dbPath;
     }
 
     public void AddNewPerson(string name)
-    {            
+    {
         int result = 0;
         try
         {
@@ -46,7 +59,7 @@ public class PersonRepository
         // TODO: Init then retrieve a list of Person objects from the database into a list
         try
         {
-            
+
         }
         catch (Exception ex)
         {
