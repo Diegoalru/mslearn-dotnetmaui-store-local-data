@@ -9,59 +9,43 @@ public class PersonRepository(string dbPath)
 
     private SQLiteAsyncConnection _conn;
 
-    private async Task Init()
+    private async Task InitAsync()
     {
-        if (_conn != null)
-            return;
-
-
-        _conn = new SQLiteAsyncConnection(dbPath);
-
-        if (string.IsNullOrEmpty(_conn.DatabasePath))
-            throw new Exception("[Repository] Database path not found!");
-
-
-        await _conn.CreateTableAsync<Person>();
+        if (_conn == null)
+        {
+            _conn = new SQLiteAsyncConnection(dbPath);
+            await _conn.CreateTableAsync<Person>();
+        }
     }
 
-    public void AddNewPerson(string name)
+    public async Task AddNewPersonAsync(string name)
     {
         try
         {
-            Init();
+            await InitAsync();
 
-            // basic validation to ensure a name was entered
             if (string.IsNullOrEmpty(name))
                 throw new Exception("Valid name required");
 
-            var result = _conn.Insert(new Person { Name = name });
-
+            var result = await _conn.InsertAsync(new Person { Name = name });
             StatusMessage = $"{result} record(s) added (Name: {name})";
         }
         catch (SQLiteException ex)
         {
-            if (ex.Message.Contains("UNIQUE"))
-            {
-                StatusMessage = $"Unable to register {name}. Already exists.";
-                return;
-            }
-
-            StatusMessage = $"Failed to add {name}.";
+            StatusMessage = ex.Message.Contains("UNIQUE") ? $"Unable to register {name}. Already exists." : $"Failed to add {name}.";
         }
         catch (Exception)
         {
             StatusMessage = $"An unexpected error occurred while adding {name}.";
         }
-
     }
 
-    public List<Person> GetAllPeople()
+    public async Task<List<Person>> GetAllPeopleAsync()
     {
         try
         {
-            Init();
-
-            return [.. _conn.Table<Person>()];
+            await InitAsync();
+            return await _conn.Table<Person>().ToListAsync();
         }
         catch (SQLiteException)
         {
@@ -69,9 +53,9 @@ public class PersonRepository(string dbPath)
         }
         catch (Exception)
         {
-            StatusMessage = "An unexpected error occured while retrieve data.";
+            StatusMessage = "An unexpected error occurred while retrieving data.";
         }
 
-        return [];
+        return new List<Person>();
     }
 }
