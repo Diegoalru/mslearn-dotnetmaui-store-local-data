@@ -7,21 +7,21 @@ public class PersonRepository(string dbPath)
 {
     public string StatusMessage { get; private set; }
 
-    private SQLiteConnection _conn;
+    private SQLiteAsyncConnection _conn;
 
-    private void Init()
+    private async Task Init()
     {
         if (_conn != null)
             return;
 
 
-        _conn = new SQLiteConnection(dbPath);
+        _conn = new SQLiteAsyncConnection(dbPath);
 
         if (string.IsNullOrEmpty(_conn.DatabasePath))
             throw new Exception("[Repository] Database path not found!");
 
 
-        _conn.CreateTable<Person>();
+        await _conn.CreateTableAsync<Person>();
     }
 
     public void AddNewPerson(string name)
